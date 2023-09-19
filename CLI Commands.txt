@@ -1,0 +1,2 @@
+dotnet ef migrations add InitialPersistedGrantMigration --context PersistedGrantDbContext -o Migrations/IdentityServer/PersistedGrantDb
+dotnet ef migrations add InitialConfigurationMigration --context ConfigurationDbContext -o Migrations/IdentityServer/ConfigurationDb
