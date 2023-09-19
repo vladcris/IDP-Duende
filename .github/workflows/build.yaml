@@ -1,0 +1,33 @@
+name: learning actions
+
+run-name: ${{ github.actor }} is using actions
+
+on: [push]
+
+jobs: 
+  check-bats-version: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull code to virtual machine
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Print Current Directory
+        run: pwd
+      
+      - name: List files in directory
+        run: ls
+      
+      - name: Restore dependencies
+        run: dotnet restore
+        
+      - name: Build
+        run: dotnet build --no-restore
+      
+
+
+
