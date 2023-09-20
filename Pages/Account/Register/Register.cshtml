@@ -1,0 +1,52 @@
+﻿@page
+@model IdentityProvider.Duende.Pages.Account.Register.RegisterModel
+@{
+}
+<h2>Register</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-page="/Account/Register/Register" method="post" asp-route-returnUrl=@ViewData["ReturnUrl"]>
+            <partial name="_ValidationSummary" />
+            <input asp-for="ReturnUrl" hidden/>
+            <div class="form-group">
+                <label asp-for="@Model.Input.FirstName" class="control-label"></label>
+                <input asp-for="@Model.Input.FirstName" class="form-control"/>
+                <span asp-validation-for="@Model.Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.LastName" class="control-label"></label>
+                <input asp-for="@Model.Input.LastName" class="form-control" />
+                <span asp-validation-for="@Model.Input.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.Email" class="control-label"></label>
+                <input asp-for="@Model.Input.Email" class="form-control" />
+                <span asp-validation-for="@Model.Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.Address" class="control-label"></label>
+                <input asp-for="@Model.Input.Address" class="form-control" />
+                <span asp-validation-for="@Model.Input.Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.Country" class="control-label"></label>
+                <input asp-for="@Model.Input.Country" class="form-control" />
+                <span asp-validation-for="@Model.Input.Country" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.Password" class="control-label"></label>
+                <input asp-for="@Model.Input.Password" class="form-control" />
+                <span asp-validation-for="@Model.Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Input.ConfirmPassword" class="control-label"></label>
+                <input asp-for="@Model.Input.ConfirmPassword" class="form-control" />
+                <span asp-validation-for="@Model.Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
