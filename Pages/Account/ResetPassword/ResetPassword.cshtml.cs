@@ -46,7 +46,10 @@ namespace IdentityProvider.Duende.Pages.Account.ResetPassword
                 }
                 return Page();
             }
-
+            if (await userManager.IsLockedOutAsync(user)) {
+                await userManager.SetLockoutEndDateAsync(user, new DateTimeOffset(new
+               DateTime(1000, 1, 1, 1, 1, 1)));
+            }
             return RedirectToPage("/Account/ResetPassword/ResetPasswordConfirmation", new { ReturnUrl });
         }
     }

@@ -3,6 +3,7 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
+using EmailService;
 using IdentityProvider.Duende.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +21,7 @@ public class Index : PageModel
     private readonly IEventService _events;
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
+    private readonly IEmailSender emailSender;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly IIdentityProviderStore _identityProviderStore;
 
@@ -34,7 +36,8 @@ public class Index : PageModel
         IIdentityProviderStore identityProviderStore,
         IEventService events,
         UserManager<User> userManager,
-        SignInManager<User> signInManager)
+        SignInManager<User> signInManager,
+        IEmailSender emailSender)
     {
         // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
         //_users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
@@ -45,6 +48,7 @@ public class Index : PageModel
         _events = events;
         this.userManager = userManager;
         this.signInManager = signInManager;
+        this.emailSender = emailSender;
     }
 
     public async Task<IActionResult> OnGet(string returnUrl)
@@ -123,6 +127,9 @@ public class Index : PageModel
                     throw new Exception("invalid return URL");
                 }
             }
+            if(result.IsLockedOut) {
+                await HandleLockout(Input.Username, Input.ReturnUrl);
+            }
 
         }
 
@@ -132,7 +139,21 @@ public class Index : PageModel
         //await BuildModelAsync(Input.ReturnUrl);
         return Page();
     }
-        
+    
+    private async Task HandleLockout(string email, string returnUrl) {
+        var user = await userManager.FindByEmailAsync(email);
+        var forgotLink = Url.Page("/Account/ForgotPassword/ForgotPassword", null, new { returnUrl }, Request.Scheme);
+
+        var content = @$"Your account is lockout, you can try again later or to reset your password,
+                please click this link: {forgotLink}";
+
+        var message = new Message(new string[] { user.Email }, "Account lockout", content, null);
+
+        await emailSender.SendEmailAsync(message);
+
+        ModelState.AddModelError("", "The account is locked out, check email for reset password");
+    }
+
     private async Task BuildModelAsync(string returnUrl)
     {
         Input = new InputModel

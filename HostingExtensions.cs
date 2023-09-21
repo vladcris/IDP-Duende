@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Identity;
 using EmailService;
+using IdentityProvider.Duende.CustomTokenProviders;
 
 namespace IdentityProvider.Duende;
 
@@ -28,12 +29,20 @@ internal static class HostingExtensions
         builder.Services.AddIdentity<User, IdentityRole>(opt => {
             opt.User.RequireUniqueEmail = true;
             opt.SignIn.RequireConfirmedEmail = true;
+            opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
+            opt.Lockout.AllowedForNewUsers = true; // use sign in manager to lockout
+            opt.Lockout.MaxFailedAccessAttempts = 5;
+            opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         })
             .AddEntityFrameworkStores<IdentityProvider.Duende.Entities.UserContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation");
 
         builder.Services.Configure<DataProtectionTokenProviderOptions>(opt => {
             opt.TokenLifespan = TimeSpan.FromHours(2);
+        });
+        builder.Services.Configure<EmailConfirmationTokenProviderOptions>(opt => {
+            opt.TokenLifespan = TimeSpan.FromDays(3);
         });
 
         builder.Services.AddIdentityServer(options => {
