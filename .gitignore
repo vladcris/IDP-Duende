@@ -4,4 +4,4 @@
 IDP_OAuth.*
 IDP_OAuthIdentity.*
 .vs
-appsettings
+appsettings.*

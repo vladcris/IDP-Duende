@@ -26,7 +26,8 @@ internal static class HostingExtensions
         });
 
         builder.Services.AddIdentity<User, IdentityRole>(opt => {
-            
+            opt.User.RequireUniqueEmail = true;
+            opt.SignIn.RequireConfirmedEmail = true;
         })
             .AddEntityFrameworkStores<IdentityProvider.Duende.Entities.UserContext>()
             .AddDefaultTokenProviders();

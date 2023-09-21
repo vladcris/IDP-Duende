@@ -1,4 +1,5 @@
 using AutoMapper;
+using EmailService;
 using IdentityModel;
 using IdentityProvider.Duende.Entities;
 using IdentityProvider.Duende.Entities.Register;
@@ -15,16 +16,18 @@ namespace IdentityProvider.Duende.Pages.Account.Register
     {
         private readonly UserManager<User> userManager;
         private readonly IMapper mapper;
+        private readonly IEmailSender emailSender;
 
         [BindProperty]
         public UserRegistrationModel Input { get; set; }
         [BindProperty]
         public string ReturnUrl { get; set; }
 
-        public RegisterModel(UserManager<User> userManager, IMapper mapper)
+        public RegisterModel(UserManager<User> userManager, IMapper mapper, IEmailSender emailSender)
         {
             this.userManager = userManager;
             this.mapper = mapper;
+            this.emailSender = emailSender;
         }
         public IActionResult OnGet(string returnUrl)
         {
@@ -60,7 +63,21 @@ namespace IdentityProvider.Duende.Pages.Account.Register
                 new Claim("country", user.Country)
             });
 
-            return Redirect(ReturnUrl);
+            await SendEmailConfirmation(user, ReturnUrl);
+            return Redirect("/Account/Register/SuccessRegistration");
+        }
+
+        private async Task SendEmailConfirmation(User user, string returnUrl) {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Page("/Account/Register/ConfirmMail", null, new {
+                token,
+                email = user.Email,
+                returnUrl
+            }, Request.Scheme);
+
+            var message = new Message(new string[] { user.Email }, "Confirm mail link", confirmationLink, null);
+
+            await emailSender.SendEmailAsync(message);
         }
     }
 }
