@@ -2,6 +2,7 @@ using IdentityProvider.Duende.Entities;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.AspNetCore.Identity;
+using EmailService;
 
 namespace IdentityProvider.Duende;
 
@@ -14,6 +15,10 @@ internal static class HostingExtensions
 
         builder.Services.AddAutoMapper(typeof(Program));
 
+        var config = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+        builder.Services.AddSingleton(config);
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+
         var migrationAssembly = typeof(Program).Assembly.GetName().Name;
 
         builder.Services.AddDbContext<UserContext>(opt => {
@@ -25,6 +30,10 @@ internal static class HostingExtensions
         })
             .AddEntityFrameworkStores<IdentityProvider.Duende.Entities.UserContext>()
             .AddDefaultTokenProviders();
+
+        builder.Services.Configure<DataProtectionTokenProviderOptions>(opt => {
+            opt.TokenLifespan = TimeSpan.FromHours(2);
+        });
 
         builder.Services.AddIdentityServer(options => {
             // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
