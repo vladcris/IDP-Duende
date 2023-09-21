@@ -1,0 +1,25 @@
+﻿@page
+@model IdentityProvider.Duende.Pages.Account.Login.LoginTwoStepModel
+@{
+}
+
+<h1>Two-step login</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-page="/Account/Login/LoginTwoStep" method="post">
+            <input asp-for="@Model.ReturnUrl" type="hidden"/>
+            <div class="form-group">
+                <partial name="_ValidationSummary"/>
+                <label class="control-label" asp-for="Input.TwoFactorCode"></label>
+                <input class="form-control" asp-for="Input.TwoFactorCode" autofocus/>
+                <span asp-validation-for="Input.TwoFactorCode" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Input.RememberLogin" />
+            <input type="hidden" asp-for="@Model.Email" />
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>

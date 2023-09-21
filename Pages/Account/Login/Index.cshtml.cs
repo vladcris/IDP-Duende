@@ -129,15 +129,28 @@ public class Index : PageModel
             }
             if(result.IsLockedOut) {
                 await HandleLockout(Input.Username, Input.ReturnUrl);
+                return Page();
             }
 
+            if(result.RequiresTwoFactor) {
+               return RedirectToPage("/Account/Login/LoginTwoStep", new {
+                    Email = Input.Username,
+                    Input.RememberLogin,
+                    Input.ReturnUrl
+                });
+
+            }
+            return Page();
+
+        }
+        else {
+            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId: context?.Client.ClientId));
+            ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
+            // something went wrong, show form with error
+            //await BuildModelAsync(Input.ReturnUrl);
+            return Page();
         }
 
-        await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId: context?.Client.ClientId));
-        ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
-        // something went wrong, show form with error
-        //await BuildModelAsync(Input.ReturnUrl);
-        return Page();
     }
     
     private async Task HandleLockout(string email, string returnUrl) {
