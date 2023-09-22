@@ -65,6 +65,13 @@ internal static class HostingExtensions
             })
             .AddAspNetIdentity<User>();
 
+        var googleAuth = builder.Configuration.GetSection("Google");
+        builder.Services.AddAuthentication()
+            .AddGoogle(opt => {
+                opt.ClientId = googleAuth["ClientID"];
+                opt.ClientSecret = googleAuth["ClientSecret"];
+            });
+
         return builder.Build();
     }
     
